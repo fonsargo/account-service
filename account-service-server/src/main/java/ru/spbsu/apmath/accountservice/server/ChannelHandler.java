@@ -34,31 +34,14 @@ public class ChannelHandler implements Runnable {
       socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
       while (true) {
         selector.select();
-        Set keys = selector.selectedKeys();
-        Iterator it = keys.iterator();
+        Set<SelectionKey> keys = selector.selectedKeys();
+        Iterator<SelectionKey> it = keys.iterator();
         while (it.hasNext()) {
-          SelectionKey key = (SelectionKey) it.next();
+          SelectionKey key = it.next();
           if (key.isReadable() && !read) {
-            if (socketChannel.read(buffer) > 0)
+            if (socketChannel.read(buffer) > 0) {
               read = true;
-            buffer.flip();
-            if (buffer.limit() == 4) {
-              int id = buffer.getInt();
-              System.out.println(String.format("Calling getAmount(%s) by %s", id, Thread.currentThread().getName()));
-              long value = accountService.getAmount(id);
-              System.out.println(String.format("Getting value=%s from %s", value, Thread.currentThread().getName()));
-              buffer.clear();
-              buffer.putLong(value);
-            } else if (buffer.limit() == 12) {
-              int id = buffer.getInt();
-              long value = buffer.getLong();
-              System.out.println(String.format("Calling addAmount(%s, %s) by %s", id, value, Thread.currentThread().getName()));
-              accountService.addAmount(id, value);
-              buffer.clear();
-              buffer.putChar('t'); //true
-            } else {
-              buffer.clear();
-              buffer.putChar('f'); //false
+              readBuffer(buffer);
             }
           }
           if (key.isWritable() && read) {
@@ -82,6 +65,28 @@ public class ChannelHandler implements Runnable {
         e.printStackTrace();
         throw new RuntimeException(e);
       }
+    }
+  }
+
+  private void readBuffer(ByteBuffer buffer) {
+    buffer.flip();
+    if (buffer.limit() == 4) {
+      int id = buffer.getInt();
+      System.out.println(String.format("Calling getAmount(%s) by %s", id, Thread.currentThread().getName()));
+      long value = accountService.getAmount(id);
+      System.out.println(String.format("Getting value=%s from %s", value, Thread.currentThread().getName()));
+      buffer.clear();
+      buffer.putLong(value);
+    } else if (buffer.limit() == 12) {
+      int id = buffer.getInt();
+      long value = buffer.getLong();
+      System.out.println(String.format("Calling addAmount(%s, %s) by %s", id, value, Thread.currentThread().getName()));
+      accountService.addAmount(id, value);
+      buffer.clear();
+      buffer.putChar('t'); //true
+    } else {
+      buffer.clear();
+      buffer.putChar('f'); //false
     }
   }
 }

@@ -28,40 +28,48 @@ public class Server implements Runnable {
     this.port = port;
     this.executorService = Executors.newCachedThreadPool();
     this.accountService = accountService;
+    new Thread(this).start();
   }
 
   public void run() {
     try {
+      System.out.println("Opening socket...");
       ServerSocketChannel ssc = ServerSocketChannel.open();
-      ssc.configureBlocking(false);
-      ServerSocket ss = ssc.socket();
-      InetSocketAddress isa = new InetSocketAddress(port);
-      ss.bind(isa);
       Selector selector = Selector.open();
-      ssc.register(selector, SelectionKey.OP_ACCEPT);
-      System.out.println("Listening on port: " + port);
-      while (true) {
-        selector.select();
-        Set keys = selector.selectedKeys();
-        Iterator it = keys.iterator();
-        while (it.hasNext()) {
-          SelectionKey key = (SelectionKey)it.next();
-          if (key.isAcceptable()) {
-            SocketChannel socketChannel = ssc.accept();
-            System.out.println("Accept connection from: " + socketChannel.socket());
-            socketChannel.configureBlocking(false);
-            socketChannel.register(selector, SelectionKey.OP_READ);
-          } else if (key.isReadable()) {
-            SocketChannel sc = (SocketChannel)key.channel();
-            System.out.println(String.format("Get readable channel %s and add it to the executor service.", key.channel()));
-            executorService.submit(new ChannelHandler(sc, accountService));
-            key.cancel();
+      try {
+        ssc.configureBlocking(false);
+        ServerSocket ss = ssc.socket();
+        InetSocketAddress isa = new InetSocketAddress(port);
+        ss.bind(isa);
+        ssc.register(selector, SelectionKey.OP_ACCEPT);
+        System.out.println("Listening on port: " + port);
+        while (true) {
+          selector.select();
+          Set<SelectionKey> keys = selector.selectedKeys();
+          Iterator<SelectionKey> it = keys.iterator();
+          while (it.hasNext()) {
+            SelectionKey key = it.next();
+            if (key.isAcceptable()) {
+              SocketChannel socketChannel = ssc.accept();
+              System.out.println("Accept connection from: " + socketChannel.socket());
+              socketChannel.configureBlocking(false);
+              socketChannel.register(selector, SelectionKey.OP_READ);
+            } else if (key.isReadable()) {
+              SocketChannel sc = (SocketChannel) key.channel();
+              System.out.println(String.format("Get readable channel %s and add it to the executor service.", key.channel()));
+              executorService.submit(new ChannelHandler(sc, accountService));
+              key.cancel();
+            }
           }
+          keys.clear();
         }
-        keys.clear();
+      } finally {
+        ssc.close();
+        selector.close();
       }
     } catch(IOException ie ) {
-      System.out.println(ie);
+      System.out.println(ie.getMessage());
+      throw new RuntimeException(ie);
     }
   }
 }
