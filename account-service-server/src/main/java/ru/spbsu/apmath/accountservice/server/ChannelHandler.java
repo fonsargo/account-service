@@ -20,6 +20,8 @@ public class ChannelHandler implements Runnable {
   private SocketChannel socketChannel;
   private AccountService accountService;
 
+  private static final long TIMEOUT = 10000;
+
   public ChannelHandler(SocketChannel socketChannel, AccountService accountService) {
     this.socketChannel = socketChannel;
     this.accountService = accountService;
@@ -32,6 +34,8 @@ public class ChannelHandler implements Runnable {
     try {
       Selector selector = Selector.open();
       socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+      System.out.println(String.format("[%s] Opened!", Thread.currentThread().getName()));
+      long now = System.currentTimeMillis();
       while (true) {
         selector.select();
         Set<SelectionKey> keys = selector.selectedKeys();
@@ -41,28 +45,32 @@ public class ChannelHandler implements Runnable {
           if (key.isReadable() && !read) {
             if (socketChannel.read(buffer) > 0) {
               read = true;
+              now = System.currentTimeMillis();
               readBuffer(buffer);
+            } else {
+              if (System.currentTimeMillis() - now > TIMEOUT) {
+                throw new RuntimeException("Connection time out");
+              }
             }
           }
           if (key.isWritable() && read) {
             read = false;
             socketChannel.write(buffer);
-            System.out.println(String.format("Write buffer %s from %s", buffer.toString(), Thread.currentThread().getName()));
+            System.out.println(String.format("[%s] Write buffer: %s", Thread.currentThread().getName(), buffer));
             buffer.clear();
           }
         }
         keys.clear();
       }
     } catch (Exception e) {
-      System.out.println(String.format("Error: %s\nFrom: %s", e.getMessage(), Thread.currentThread().getName()));
-      e.printStackTrace();
+      System.out.println(String.format("[%s] Error: %s", Thread.currentThread().getName(), e.getMessage()));
       throw new RuntimeException(e);
     } finally {
+      System.out.println(String.format("[%s] Closing channel...", Thread.currentThread().getName()));
       try {
         socketChannel.close();
       } catch (IOException e) {
-        System.out.println("Channel not closed");
-        e.printStackTrace();
+        System.out.println(String.format("[%s] Channel not closed!", Thread.currentThread().getName()));
         throw new RuntimeException(e);
       }
     }
@@ -72,15 +80,15 @@ public class ChannelHandler implements Runnable {
     buffer.flip();
     if (buffer.limit() == 4) {
       int id = buffer.getInt();
-      System.out.println(String.format("Calling getAmount(%s) by %s", id, Thread.currentThread().getName()));
+      System.out.println(String.format("[%s] Calling getAmount(%s)", Thread.currentThread().getName(), id));
       long value = accountService.getAmount(id);
-      System.out.println(String.format("Getting value=%s from %s", value, Thread.currentThread().getName()));
+      System.out.println(String.format("[%s] Getting value=%s", Thread.currentThread().getName(), value));
       buffer.clear();
       buffer.putLong(value);
     } else if (buffer.limit() == 12) {
       int id = buffer.getInt();
       long value = buffer.getLong();
-      System.out.println(String.format("Calling addAmount(%s, %s) by %s", id, value, Thread.currentThread().getName()));
+      System.out.println(String.format("[%s] Calling addAmount(%s, %s)", Thread.currentThread().getName(), id, value));
       accountService.addAmount(id, value);
       buffer.clear();
       buffer.putChar('t'); //true
@@ -88,5 +96,6 @@ public class ChannelHandler implements Runnable {
       buffer.clear();
       buffer.putChar('f'); //false
     }
+    buffer.flip();
   }
 }

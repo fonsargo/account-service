@@ -18,6 +18,7 @@ public class AddAmountReader implements ServiceReader {
 
   public AddAmountReader(List<Integer> idList) {
     this.idList = idList;
+    this.random = new Random();
   }
 
   @Override
@@ -25,9 +26,10 @@ public class AddAmountReader implements ServiceReader {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
     long value = random.nextLong();
-    System.out.println(String.format("Write id = %s and value = %s by %s", id, value, Thread.currentThread().getName()));
+    System.out.println(String.format("[%s] Write id = %s and value = %s", Thread.currentThread().getName(), id, value));
     buffer.putInt(id);
     buffer.putLong(value);
+    buffer.flip();
     return buffer;
   }
 
@@ -35,6 +37,6 @@ public class AddAmountReader implements ServiceReader {
   public void readBuffer(ByteBuffer buffer) {
     buffer.flip();
     char c = buffer.getChar();
-    System.out.println(String.format("Got a char = %s by %s", c, Thread.currentThread().getName()));
+    System.out.println(String.format("[%s] Got a char = %s", Thread.currentThread().getName(), c));
   }
 }

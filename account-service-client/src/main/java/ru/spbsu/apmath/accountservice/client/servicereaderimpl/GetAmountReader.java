@@ -28,6 +28,7 @@ public class GetAmountReader implements ServiceReader {
     int id = idList.get(random.nextInt(idList.size()));
     System.out.println(String.format("Write id = %s by %s", id, Thread.currentThread().getName()));
     buffer.putInt(id);
+    buffer.flip();
     return buffer;
   }
 

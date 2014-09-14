@@ -16,13 +16,11 @@ import java.util.Iterator;
  */
 public class Client implements Runnable {
 
-  private int clientPort;
   private String host;
   private int port;
   private ServiceReader serviceReader;
 
-  public Client(int clientPort, String host, int port, ServiceReader serviceReader) {
-    this.clientPort = clientPort;
+  public Client(String host, int port, ServiceReader serviceReader) {
     this.host = host;
     this.port = port;
     this.serviceReader = serviceReader;
@@ -37,9 +35,11 @@ public class Client implements Runnable {
       Selector selector = Selector.open();
       try {
         socketChannel.configureBlocking(false);
-        socketChannel.socket().bind(new InetSocketAddress(clientPort));
+        socketChannel.socket().bind(new InetSocketAddress(0));
         System.out.println(String.format("[%s] Opened!", Thread.currentThread().getName()));
-        socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE | SelectionKey.OP_CONNECT);
+        socketChannel.register(selector, SelectionKey.OP_CONNECT);
+        System.out.println(String.format("[%s] Trying to connect...", Thread.currentThread().getName()));
+        socketChannel.connect(new InetSocketAddress(host, port));
         boolean written = false;
         ByteBuffer byteBuffer = ByteBuffer.allocate(16);
         while(true) {
@@ -49,14 +49,10 @@ public class Client implements Runnable {
             SelectionKey selectionKey = iterator.next();
             iterator.remove();
             socketChannel = (SocketChannel) selectionKey.channel();
-            if (selectionKey.isConnectable() && !socketChannel.isConnected()) {
-              System.out.println(String.format("[%s] Trying to connect...", Thread.currentThread().getName()));
-              boolean success = socketChannel.connect(new InetSocketAddress(host, port));
-              if (!success) {
-                socketChannel.finishConnect();
-                System.out.println(String.format("[%s]Failed!", Thread.currentThread().getName()));
-              } else {
-                System.out.println(String.format("[%s] Success", Thread.currentThread().getName()));
+            if (selectionKey.isConnectable()) {
+              socketChannel.finishConnect();
+              if (socketChannel.isConnected()) {
+                socketChannel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
               }
             }
             if (selectionKey.isWritable() && !written) {
