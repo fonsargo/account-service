@@ -26,7 +26,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ru.spbsu.apmath.accountservice.client.App</mainClass>
+                            <mainClass>ru.spbsu.apmath.accountservice.ClientApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

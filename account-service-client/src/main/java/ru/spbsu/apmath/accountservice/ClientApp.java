@@ -1,5 +1,6 @@
-package ru.spbsu.apmath.accountservice.client;
+package ru.spbsu.apmath.accountservice;
 
+import ru.spbsu.apmath.accountservice.client.Client;
 import ru.spbsu.apmath.accountservice.client.impl.AddAmountReader;
 import ru.spbsu.apmath.accountservice.client.impl.GetAmountReader;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class App {
+public class ClientApp {
 
   private static final String USAGE =
           "Usage: java account-service-client [host] [port] [rCount] [wCount] [idList(separated by ',')]";
