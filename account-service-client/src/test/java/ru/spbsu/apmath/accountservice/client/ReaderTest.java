@@ -26,7 +26,6 @@ import static ru.spbsu.apmath.accountservice.client.Matchers.fromGetAmountWithId
 public class ReaderTest {
 
   private static List<Integer> idList = new ArrayList<Integer>();
-  private static Random random;
   private static ByteBuffer byteBuffer;
 
   private BufferHandler bufferHandler;
@@ -34,7 +33,7 @@ public class ReaderTest {
 
   @BeforeClass
   public static void initList() {
-    random = new Random();
+    Random random = new Random();
     byteBuffer = ByteBuffer.allocate(16);
     for (int i = 0; i < 10; i++)
       idList.add(random.nextInt());

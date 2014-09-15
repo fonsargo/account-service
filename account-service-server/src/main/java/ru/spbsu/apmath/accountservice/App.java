@@ -16,7 +16,7 @@ public class App  {
     try {
       int port = Integer.parseInt(args[0]);
       System.out.println("Starting server...");
-      new Server(port, new BufferHandlerImpl(new AccountServiceImpl()));
+      new Thread(new Server(port, new BufferHandlerImpl(new AccountServiceImpl())));
     } catch (IndexOutOfBoundsException ibe) {
       System.out.println(USAGE);
     } catch (NumberFormatException nfe) {

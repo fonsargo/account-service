@@ -24,7 +24,6 @@ public class Client implements Runnable {
     this.host = host;
     this.port = port;
     this.bufferHandler = bufferHandler;
-    new Thread(this).start();
   }
 
   @Override

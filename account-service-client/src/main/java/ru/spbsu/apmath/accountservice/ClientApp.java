@@ -25,10 +25,10 @@ public class ClientApp {
         idList.add(Integer.parseInt(s));
       System.out.println("Starting clients...");
       for (int i = 0; i < wCount; i++) {
-        new Client(host, port, new AddAmountReader(idList));
+        new Thread(new Client(host, port, new AddAmountReader(idList))).start();
       }
       for (int i = 0; i < rCount; i++) {
-        new Client(host, port, new GetAmountReader(idList));
+        new Thread(new Client(host, port, new GetAmountReader(idList))).start();
       }
       System.out.println("All clients were started!");
     } catch (IndexOutOfBoundsException ibe) {

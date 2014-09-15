@@ -27,7 +27,6 @@ public class Server implements Runnable {
     this.port = port;
     this.executorService = Executors.newCachedThreadPool();
     this.bufferHandler = bufferHandler;
-    new Thread(this).start();
   }
 
   public void run() {
