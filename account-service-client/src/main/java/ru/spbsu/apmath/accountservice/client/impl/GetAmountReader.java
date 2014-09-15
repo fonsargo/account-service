@@ -26,7 +26,6 @@ public class GetAmountReader implements BufferHandler {
   public ByteBuffer prepareToWrite(ByteBuffer buffer) {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
-    System.out.println(String.format("Write id = %s by %s", id, Thread.currentThread().getName()));
     buffer.putInt(id);
     buffer.flip();
     return buffer;
@@ -36,7 +35,6 @@ public class GetAmountReader implements BufferHandler {
   public ByteBuffer readBuffer(ByteBuffer buffer) {
     buffer.flip();
     long value = buffer.getLong();
-    System.out.println(String.format("Got a value = %s by %s", value, Thread.currentThread().getName()));
     buffer.clear();
     return buffer;
   }

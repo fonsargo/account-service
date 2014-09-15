@@ -13,7 +13,18 @@ public class App {
     try {
       int port = Integer.parseInt(args[0]);
       System.out.println("Starting server...");
-      new Thread(new Server(port, new BufferHandlerImpl(new AccountServiceImpl()))).start();
+      AccountServiceImpl accountService = new AccountServiceImpl();
+      new Thread(new Server(port, new BufferHandlerImpl(accountService))).start();
+      int get = 0;
+      int add = 0;
+      while(true) {
+        Thread.sleep(10000);
+        int tmpGet = accountService.getAddRequests();
+        int tmpAdd = accountService.getGetRequests();
+        System.out.println(String.format("COUNT OF REQUESTS PER SECOND: add=%s, get=%s", tmpAdd - add, tmpGet - get));
+        get = tmpGet;
+        add = tmpAdd;
+      }
     } catch (IndexOutOfBoundsException ibe) {
       System.out.println(USAGE);
     } catch (NumberFormatException nfe) {

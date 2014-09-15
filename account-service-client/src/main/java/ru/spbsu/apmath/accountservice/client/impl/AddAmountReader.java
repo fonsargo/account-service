@@ -26,7 +26,6 @@ public class AddAmountReader implements BufferHandler {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
     long value = random.nextLong();
-    System.out.println(String.format("[%s] Write id = %s and value = %s", Thread.currentThread().getName(), id, value));
     buffer.putInt(id);
     buffer.putLong(value);
     buffer.flip();
@@ -37,7 +36,6 @@ public class AddAmountReader implements BufferHandler {
   public ByteBuffer readBuffer(ByteBuffer buffer) {
     buffer.flip();
     char c = buffer.getChar();
-    System.out.println(String.format("[%s] Got a char = %s", Thread.currentThread().getName(), c));
     buffer.clear();
     return buffer;
   }

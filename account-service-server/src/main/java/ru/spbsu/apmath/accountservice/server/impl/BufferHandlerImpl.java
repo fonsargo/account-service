@@ -28,15 +28,12 @@ public class BufferHandlerImpl implements BufferHandler {
     buffer.flip();
     if (buffer.limit() == 4) {
       int id = buffer.getInt();
-      System.out.println(String.format("[%s] Calling getAmount(%s)", Thread.currentThread().getName(), id));
       long value = accountService.getAmount(id);
-      System.out.println(String.format("[%s] Getting value=%s", Thread.currentThread().getName(), value));
       buffer.clear();
       buffer.putLong(value);
     } else if (buffer.limit() == 12) {
       int id = buffer.getInt();
       long value = buffer.getLong();
-      System.out.println(String.format("[%s] Calling addAmount(%s, %s)", Thread.currentThread().getName(), id, value));
       accountService.addAmount(id, value);
       buffer.clear();
       buffer.putChar('t'); //true

@@ -54,7 +54,6 @@ public class ChannelHandler implements Runnable {
           if (key.isWritable() && read) {
             read = false;
             socketChannel.write(bufferHandler.prepareToWrite(buffer));
-            System.out.println(String.format("[%s] Write buffer: %s", Thread.currentThread().getName(), buffer));
             buffer.clear();
           }
         }

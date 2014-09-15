@@ -55,14 +55,12 @@ public class Client implements Runnable {
               }
             }
             if (selectionKey.isWritable() && !written) {
-              System.out.println(String.format("[%s] Writing data...", Thread.currentThread().getName()));
               byteBuffer = bufferHandler.prepareToWrite(byteBuffer);
               socketChannel.write(byteBuffer);
               byteBuffer.clear();
               written = true;
             }
             if (selectionKey.isReadable() && written) {
-              System.out.println(String.format("[%s] Reading data...", Thread.currentThread().getName()));
               if (socketChannel.read(byteBuffer) > 0) {
                 written = false;
                 byteBuffer = bufferHandler.readBuffer(byteBuffer);
