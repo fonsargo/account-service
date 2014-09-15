@@ -1,7 +1,5 @@
 package ru.spbsu.apmath.accountservice.server;
 
-import ru.spbsu.apmath.accountservice.service.AccountService;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -18,13 +16,13 @@ import java.util.Set;
  */
 public class ChannelHandler implements Runnable {
   private SocketChannel socketChannel;
-  private AccountService accountService;
+  private BufferHandler bufferHandler;
 
   private static final long TIMEOUT = 10000;
 
-  public ChannelHandler(SocketChannel socketChannel, AccountService accountService) {
+  public ChannelHandler(SocketChannel socketChannel, BufferHandler bufferHandler) {
     this.socketChannel = socketChannel;
-    this.accountService = accountService;
+    this.bufferHandler = bufferHandler;
   }
 
   @Override
@@ -46,7 +44,7 @@ public class ChannelHandler implements Runnable {
             if (socketChannel.read(buffer) > 0) {
               read = true;
               now = System.currentTimeMillis();
-              readBuffer(buffer);
+              buffer = bufferHandler.readBuffer(buffer);
             } else {
               if (System.currentTimeMillis() - now > TIMEOUT) {
                 throw new RuntimeException("Connection time out");
@@ -55,7 +53,7 @@ public class ChannelHandler implements Runnable {
           }
           if (key.isWritable() && read) {
             read = false;
-            socketChannel.write(buffer);
+            socketChannel.write(bufferHandler.prepareToWrite(buffer));
             System.out.println(String.format("[%s] Write buffer: %s", Thread.currentThread().getName(), buffer));
             buffer.clear();
           }
@@ -74,28 +72,5 @@ public class ChannelHandler implements Runnable {
         throw new RuntimeException(e);
       }
     }
-  }
-
-  private void readBuffer(ByteBuffer buffer) {
-    buffer.flip();
-    if (buffer.limit() == 4) {
-      int id = buffer.getInt();
-      System.out.println(String.format("[%s] Calling getAmount(%s)", Thread.currentThread().getName(), id));
-      long value = accountService.getAmount(id);
-      System.out.println(String.format("[%s] Getting value=%s", Thread.currentThread().getName(), value));
-      buffer.clear();
-      buffer.putLong(value);
-    } else if (buffer.limit() == 12) {
-      int id = buffer.getInt();
-      long value = buffer.getLong();
-      System.out.println(String.format("[%s] Calling addAmount(%s, %s)", Thread.currentThread().getName(), id, value));
-      accountService.addAmount(id, value);
-      buffer.clear();
-      buffer.putChar('t'); //true
-    } else {
-      buffer.clear();
-      buffer.putChar('f'); //false
-    }
-    buffer.flip();
   }
 }

@@ -1,7 +1,7 @@
 package ru.spbsu.apmath.accountservice.client;
 
-import ru.spbsu.apmath.accountservice.client.servicereaderimpl.AddAmountReader;
-import ru.spbsu.apmath.accountservice.client.servicereaderimpl.GetAmountReader;
+import ru.spbsu.apmath.accountservice.client.impl.AddAmountReader;
+import ru.spbsu.apmath.accountservice.client.impl.GetAmountReader;
 
 import java.util.ArrayList;
 import java.util.List;

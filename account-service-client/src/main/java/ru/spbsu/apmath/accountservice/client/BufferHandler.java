@@ -5,10 +5,10 @@ import java.nio.ByteBuffer;
 /**
  * Created by IntelliJ IDEA.
  * User: Афонин Сергей (hrundelb@yandex.ru)
- * Date: 14.09.2014
- * Time: 16:49
+ * Date: 15.09.2014
+ * Time: 20:51
  */
-public interface ServiceReader {
-  ByteBuffer prepareBufferToWrite(ByteBuffer buffer);
-  void readBuffer(ByteBuffer buffer);
+public interface BufferHandler {
+  ByteBuffer prepareToWrite(ByteBuffer buffer);
+  ByteBuffer readBuffer(ByteBuffer buffer);
 }

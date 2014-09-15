@@ -1,6 +1,6 @@
-package ru.spbsu.apmath.accountservice.client.servicereaderimpl;
+package ru.spbsu.apmath.accountservice.client.impl;
 
-import ru.spbsu.apmath.accountservice.client.ServiceReader;
+import ru.spbsu.apmath.accountservice.client.BufferHandler;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Random;
  * Date: 14.09.2014
  * Time: 17:14
  */
-public class AddAmountReader implements ServiceReader {
+public class AddAmountReader implements BufferHandler {
   private List<Integer> idList;
   private Random random;
 
@@ -22,7 +22,7 @@ public class AddAmountReader implements ServiceReader {
   }
 
   @Override
-  public ByteBuffer prepareBufferToWrite(ByteBuffer buffer) {
+  public ByteBuffer prepareToWrite(ByteBuffer buffer) {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
     long value = random.nextLong();
@@ -34,9 +34,11 @@ public class AddAmountReader implements ServiceReader {
   }
 
   @Override
-  public void readBuffer(ByteBuffer buffer) {
+  public ByteBuffer readBuffer(ByteBuffer buffer) {
     buffer.flip();
     char c = buffer.getChar();
     System.out.println(String.format("[%s] Got a char = %s", Thread.currentThread().getName(), c));
+    buffer.clear();
+    return buffer;
   }
 }

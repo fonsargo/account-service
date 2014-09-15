@@ -18,12 +18,12 @@ public class Client implements Runnable {
 
   private String host;
   private int port;
-  private ServiceReader serviceReader;
+  private BufferHandler bufferHandler;
 
-  public Client(String host, int port, ServiceReader serviceReader) {
+  public Client(String host, int port, BufferHandler bufferHandler) {
     this.host = host;
     this.port = port;
-    this.serviceReader = serviceReader;
+    this.bufferHandler = bufferHandler;
     new Thread(this).start();
   }
 
@@ -57,7 +57,7 @@ public class Client implements Runnable {
             }
             if (selectionKey.isWritable() && !written) {
               System.out.println(String.format("[%s] Writing data...", Thread.currentThread().getName()));
-              byteBuffer = serviceReader.prepareBufferToWrite(byteBuffer);
+              byteBuffer = bufferHandler.prepareToWrite(byteBuffer);
               socketChannel.write(byteBuffer);
               byteBuffer.clear();
               written = true;
@@ -66,7 +66,7 @@ public class Client implements Runnable {
               System.out.println(String.format("[%s] Reading data...", Thread.currentThread().getName()));
               if (socketChannel.read(byteBuffer) > 0) {
                 written = false;
-                serviceReader.readBuffer(byteBuffer);
+                byteBuffer = bufferHandler.readBuffer(byteBuffer);
               }
             }
           }

@@ -1,7 +1,5 @@
 package ru.spbsu.apmath.accountservice.server;
 
-import ru.spbsu.apmath.accountservice.service.AccountService;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -11,7 +9,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,12 +21,12 @@ import java.util.concurrent.*;
 public class Server implements Runnable {
   private int port;
   private ExecutorService executorService;
-  private AccountService accountService;
+  private BufferHandler bufferHandler;
 
-  public Server(int port, AccountService accountService) {
+  public Server(int port, BufferHandler bufferHandler) {
     this.port = port;
     this.executorService = Executors.newCachedThreadPool();
-    this.accountService = accountService;
+    this.bufferHandler = bufferHandler;
     new Thread(this).start();
   }
 
@@ -57,7 +56,7 @@ public class Server implements Runnable {
             } else if (key.isReadable()) {
               SocketChannel sc = (SocketChannel) key.channel();
               System.out.println(String.format("Get readable channel %s and add it to the executor service.", key.channel()));
-              executorService.submit(new ChannelHandler(sc, accountService));
+              executorService.submit(new ChannelHandler(sc, bufferHandler));
               key.cancel();
             }
           }

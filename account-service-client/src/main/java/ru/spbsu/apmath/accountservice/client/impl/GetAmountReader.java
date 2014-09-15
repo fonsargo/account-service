@@ -1,6 +1,6 @@
-package ru.spbsu.apmath.accountservice.client.servicereaderimpl;
+package ru.spbsu.apmath.accountservice.client.impl;
 
-import ru.spbsu.apmath.accountservice.client.ServiceReader;
+import ru.spbsu.apmath.accountservice.client.BufferHandler;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Random;
  * Date: 14.09.2014
  * Time: 17:02
  */
-public class GetAmountReader implements ServiceReader {
+public class GetAmountReader implements BufferHandler {
 
   private List<Integer> idList;
   private Random random;
@@ -23,7 +23,7 @@ public class GetAmountReader implements ServiceReader {
   }
 
   @Override
-  public ByteBuffer prepareBufferToWrite(ByteBuffer buffer) {
+  public ByteBuffer prepareToWrite(ByteBuffer buffer) {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
     System.out.println(String.format("Write id = %s by %s", id, Thread.currentThread().getName()));
@@ -33,9 +33,11 @@ public class GetAmountReader implements ServiceReader {
   }
 
   @Override
-  public void readBuffer(ByteBuffer buffer) {
+  public ByteBuffer readBuffer(ByteBuffer buffer) {
     buffer.flip();
     long value = buffer.getLong();
     System.out.println(String.format("Got a value = %s by %s", value, Thread.currentThread().getName()));
+    buffer.clear();
+    return buffer;
   }
 }
