@@ -14,7 +14,7 @@ public class ClientApp {
           "Usage: java account-service-client [host] [port] [rCount] [wCount] [idList(separated by ',')]";
 
 
-  public static void main( String[] args ) {
+  public static void main(String[] args) {
     try {
       String host = args[0];
       int port = Integer.parseInt(args[1]);

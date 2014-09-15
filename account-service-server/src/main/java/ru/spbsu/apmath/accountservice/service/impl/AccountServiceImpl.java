@@ -12,7 +12,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Long getAmount(Integer id) {
-    return (long)id;
+    return (long) id;
   }
 
   @Override

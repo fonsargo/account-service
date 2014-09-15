@@ -65,7 +65,7 @@ public class Server implements Runnable {
         ssc.close();
         selector.close();
       }
-    } catch(IOException ie ) {
+    } catch (IOException ie) {
       System.out.println(ie.getMessage());
       throw new RuntimeException(ie);
     }

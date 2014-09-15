@@ -32,7 +32,7 @@ public class BufferHandlerTest {
   public void addAmountBufferTest() {
     ByteBuffer byteBuffer = ByteBuffer.allocate(16).putInt(random.nextInt()).putLong(random.nextLong());
     byteBuffer = bufferHandler.readBuffer(byteBuffer);
-    assertThat("BufferHandler не вернул ожидаемого значения",byteBuffer.getChar(), equalTo('t'));
+    assertThat("BufferHandler не вернул ожидаемого значения", byteBuffer.getChar(), equalTo('t'));
   }
 
   @Test

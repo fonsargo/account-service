@@ -4,19 +4,16 @@ import ru.spbsu.apmath.accountservice.server.Server;
 import ru.spbsu.apmath.accountservice.server.impl.BufferHandlerImpl;
 import ru.spbsu.apmath.accountservice.service.impl.AccountServiceImpl;
 
-/**
- * Hello world!
- *
- */
-public class App  {
+
+public class App {
 
   private static final String USAGE = "Usage: java account-service-server [port]";
 
-  public static void main( String[] args ) {
+  public static void main(String[] args) {
     try {
       int port = Integer.parseInt(args[0]);
       System.out.println("Starting server...");
-      new Thread(new Server(port, new BufferHandlerImpl(new AccountServiceImpl())));
+      new Thread(new Server(port, new BufferHandlerImpl(new AccountServiceImpl()))).start();
     } catch (IndexOutOfBoundsException ibe) {
       System.out.println(USAGE);
     } catch (NumberFormatException nfe) {

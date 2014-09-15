@@ -10,5 +10,6 @@ import java.nio.ByteBuffer;
  */
 public interface BufferHandler {
   ByteBuffer prepareToWrite(ByteBuffer buffer);
+
   ByteBuffer readBuffer(ByteBuffer buffer);
 }

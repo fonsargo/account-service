@@ -41,7 +41,7 @@ public class Client implements Runnable {
         socketChannel.connect(new InetSocketAddress(host, port));
         boolean written = false;
         ByteBuffer byteBuffer = ByteBuffer.allocate(16);
-        while(true) {
+        while (true) {
           selector.select();
           Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
           while (iterator.hasNext()) {
