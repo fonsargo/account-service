@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class ClientApp {
@@ -31,12 +33,13 @@ public class ClientApp {
         managePort = Integer.parseInt(args[5]);
       }
       System.out.println("Starting clients...");
-      List<Thread> threads = new ArrayList<>();
-      startThreads(new Client(host, port, new AddAmountReader(idList)), wCount, threads);
-      startThreads(new Client(host, port, new GetAmountReader(idList)), rCount, threads);
+      Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+      ExecutorService executorService = Executors.newCachedThreadPool();
+      startThreads(new Client(host, port, new AddAmountReader(idList)), wCount, executorService);
+      startThreads(new Client(host, port, new GetAmountReader(idList)), rCount, executorService);
       System.out.println("All clients were started!");
       System.out.println("Trying to connect to the manage port...");
-      startManageClient(host, managePort, threads);
+      startManageClient(host, managePort, executorService);
     } catch (IndexOutOfBoundsException ibe) {
       System.out.println(USAGE);
     } catch (NumberFormatException nfe) {
@@ -47,7 +50,8 @@ public class ClientApp {
 
   }
 
-  private static void startManageClient(String host, int managePort, List<Thread> threads) throws IOException, InterruptedException {
+  private static void startManageClient(String host, int managePort, ExecutorService executorService)
+          throws IOException, InterruptedException {
     try (Socket s = new Socket(host, managePort);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(s.getInputStream()));
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()))) {
@@ -66,9 +70,7 @@ public class ClientApp {
       }
     } finally {
       System.out.println("Closing threads...");
-      for (Thread thread : threads)
-        thread.interrupt();
-      System.out.println("Closed!");
+      executorService.shutdownNow();
     }
   }
 
@@ -89,11 +91,9 @@ public class ClientApp {
     return idList;
   }
 
-  private static void startThreads(Client client, int count, List<Thread> threads) {
+  private static void startThreads(Client client, int count, ExecutorService executorService) {
     for (int i = 0; i < count; i++) {
-      Thread thread = new Thread(client);
-      thread.start();
-      threads.add(thread);
+      executorService.submit(client);
     }
   }
 }
