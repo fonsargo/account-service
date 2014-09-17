@@ -25,7 +25,7 @@ public class AddAmountReader implements BufferHandler {
   public ByteBuffer prepareToWrite(ByteBuffer buffer) {
     buffer.clear();
     int id = idList.get(random.nextInt(idList.size()));
-    long value = random.nextLong();
+    long value = getRandomIntFrom(-5000, 5000);
     buffer.putInt(id);
     buffer.putLong(value);
     buffer.flip();
@@ -38,5 +38,9 @@ public class AddAmountReader implements BufferHandler {
     char c = buffer.getChar();
     buffer.clear();
     return buffer;
+  }
+
+  private int getRandomIntFrom(int lowerBound, int higherBound) {
+    return random.nextInt(higherBound - lowerBound) + lowerBound;
   }
 }
