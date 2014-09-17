@@ -24,7 +24,7 @@ public class AccountServiceImpl implements AccountService {
   private DataBasePool dataBasePool;
   private AtomicInteger getRequests;
   private AtomicInteger addRequests;
-  private ConcurrentHashMap<Integer, Long> cacheMap;
+  private ConcurrentHashMap<MyInteger, Long> cacheMap;
 
   public AccountServiceImpl(DataBasePool dataBasePool) {
     getRequests = new AtomicInteger(0);
@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Long getAmount(Integer id) {
-    Long l = cacheMap.get(id);
+    Long l = cacheMap.get(new MyInteger(id));
     getRequests.incrementAndGet();
     if (l != null) {
       return l;
@@ -70,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void addAmount(Integer id, Long value) {
-    cacheMap.put(id, value);
+    cacheMap.put(new MyInteger(id), value);
     try (Connection connection = dataBasePool.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(ADD_AMOUNT_REQUEST)) {
       preparedStatement.setInt(1, id);
