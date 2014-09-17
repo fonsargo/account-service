@@ -36,6 +36,7 @@ public class App {
       if (args.length > 5) {
         managePort = Integer.parseInt(args[5]);
       }
+      Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
       AccountServiceImpl accountService = new AccountServiceImpl(dataBasePool);
       Thread server = new Thread(new Server(port, new BufferHandlerImpl(accountService)));
       server.start();

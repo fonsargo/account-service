@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -23,11 +24,13 @@ public class AccountServiceImpl implements AccountService {
   private DataBasePool dataBasePool;
   private AtomicInteger getRequests;
   private AtomicInteger addRequests;
+  private ConcurrentHashMap<Integer, Long> cacheMap;
 
   public AccountServiceImpl(DataBasePool dataBasePool) {
     getRequests = new AtomicInteger(0);
     addRequests = new AtomicInteger(0);
     this.dataBasePool = dataBasePool;
+    this.cacheMap = new ConcurrentHashMap<>();
   }
 
   public int getGetRequests() {
@@ -45,6 +48,11 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Long getAmount(Integer id) {
+    Long l = cacheMap.get(id);
+    getRequests.incrementAndGet();
+    if (l != null) {
+      return l;
+    }
     long result = 0;
     try (Connection connection = dataBasePool.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(GET_AMOUNT_REQUEST)) {
@@ -57,12 +65,12 @@ public class AccountServiceImpl implements AccountService {
       System.out.println(String.format("[%s] SQL ERROR: %s", Thread.currentThread().getName(), e));
       throw new RuntimeException(e);
     }
-    getRequests.incrementAndGet();
     return result;
   }
 
   @Override
   public void addAmount(Integer id, Long value) {
+    cacheMap.put(id, value);
     try (Connection connection = dataBasePool.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(ADD_AMOUNT_REQUEST)) {
       preparedStatement.setInt(1, id);
