@@ -34,9 +34,13 @@ public class BufferHandlerImpl implements BufferHandler {
     } else if (buffer.limit() == 12) {
       int id = buffer.getInt();
       long value = buffer.getLong();
-      accountService.addAmount(id, value);
       buffer.clear();
-      buffer.putChar('t'); //true
+      try {
+        accountService.addAmount(id, value);
+        buffer.putChar('t'); //true
+      } catch (Exception e) {
+        buffer.putChar('f'); //false
+      }
     } else {
       buffer.clear();
       buffer.putChar('f'); //false
