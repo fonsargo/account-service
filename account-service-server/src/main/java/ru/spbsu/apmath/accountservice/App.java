@@ -4,7 +4,7 @@ import ru.spbsu.apmath.accountservice.server.Server;
 import ru.spbsu.apmath.accountservice.server.impl.BufferHandlerImpl;
 import ru.spbsu.apmath.accountservice.service.DataBasePool;
 import ru.spbsu.apmath.accountservice.service.impl.AccountServiceImpl;
-import ru.spbsu.apmath.accountservice.service.impl.DBPool;
+import ru.spbsu.apmath.accountservice.service.impl.CachedDBPool;
 
 
 public class App {
@@ -15,7 +15,8 @@ public class App {
     try {
       int port = Integer.parseInt(args[0]);
       System.out.println("Starting server...");
-      DataBasePool dataBasePool = new DBPool("jdbc:postgresql://185.4.74.215/accounts", "test_user", "qwerty");
+      //DataBasePool dataBasePool = new DBPool("jdbc:postgresql://185.4.74.215/accounts", "test_user", "qwerty");
+      DataBasePool dataBasePool = new CachedDBPool("185.4.74.215", "accounts", "test_user", "qwerty");
       AccountServiceImpl accountService = new AccountServiceImpl(dataBasePool);
       new Thread(new Server(port, new BufferHandlerImpl(accountService))).start();
       int get = 0;
