@@ -3,6 +3,7 @@ package ru.spbsu.apmath.accountservice.client;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -37,12 +38,14 @@ public class Client implements Runnable {
         socketChannel.socket().bind(new InetSocketAddress(0));
         System.out.println(String.format("[%s] Opened!", Thread.currentThread().getName()));
         socketChannel.register(selector, SelectionKey.OP_CONNECT);
-        System.out.println(String.format("[%s] Trying to connect...", Thread.currentThread().getName()));
         socketChannel.connect(new InetSocketAddress(host, port));
         boolean written = false;
         ByteBuffer byteBuffer = ByteBuffer.allocate(16);
-        while (true) {
-          selector.select();
+        while (!Thread.currentThread().isInterrupted()) {
+          int num = selector.select(1000);
+          if (num == 0){
+            continue;
+          }
           Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
           while (iterator.hasNext()) {
             SelectionKey selectionKey = iterator.next();
@@ -72,6 +75,8 @@ public class Client implements Runnable {
         socketChannel.close();
         selector.close();
       }
+    } catch (ClosedByInterruptException ce) {
+      //ignore
     } catch (IOException e) {
       System.out.println(e.getMessage());
       throw new RuntimeException(e);
