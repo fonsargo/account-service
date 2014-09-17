@@ -38,6 +38,11 @@ public class AccountServiceImpl implements AccountService {
     return addRequests.get();
   }
 
+  public void reset() {
+    getRequests.set(0);
+    addRequests.set(0);
+  }
+
   @Override
   public Long getAmount(Integer id) {
     Connection connection = null;
