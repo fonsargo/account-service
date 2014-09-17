@@ -41,8 +41,10 @@ public class Server implements Runnable {
         ss.bind(isa);
         ssc.register(selector, SelectionKey.OP_ACCEPT);
         System.out.println("Listening on port: " + port);
-        while (true) {
-          selector.select();
+        while (!Thread.currentThread().isInterrupted()) {
+          int num = selector.select(1000);
+          if (num == 0)
+            continue;
           Set<SelectionKey> keys = selector.selectedKeys();
           Iterator<SelectionKey> it = keys.iterator();
           while (it.hasNext()) {
@@ -61,6 +63,8 @@ public class Server implements Runnable {
           }
           keys.clear();
         }
+        System.out.println("Stopping executor service...");
+        executorService.shutdownNow();
       } finally {
         ssc.close();
         selector.close();

@@ -34,8 +34,10 @@ public class ChannelHandler implements Runnable {
       socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
       System.out.println(String.format("[%s] Opened!", Thread.currentThread().getName()));
       long now = System.currentTimeMillis();
-      while (true) {
-        selector.select();
+      while (!Thread.currentThread().isInterrupted()) {
+        int num = selector.select(1000);
+        if (num == 0)
+          continue;
         Set<SelectionKey> keys = selector.selectedKeys();
         Iterator<SelectionKey> it = keys.iterator();
         while (it.hasNext()) {
@@ -59,6 +61,7 @@ public class ChannelHandler implements Runnable {
         }
         keys.clear();
       }
+      System.out.println(String.format("[%s] Existing...", Thread.currentThread().getName()));
     } catch (Exception e) {
       System.out.println(String.format("[%s] Error: %s", Thread.currentThread().getName(), e.getMessage()));
       throw new RuntimeException(e);
