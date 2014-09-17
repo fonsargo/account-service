@@ -45,25 +45,17 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public Long getAmount(Integer id) {
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    long result;
-    try {
-      connection = dataBasePool.getConnection();
-      preparedStatement = connection.prepareStatement(GET_AMOUNT_REQUEST);
+    long result = 0;
+    try (Connection connection = dataBasePool.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(GET_AMOUNT_REQUEST)) {
       preparedStatement.setInt(1, id);
-      resultSet = preparedStatement.executeQuery();
+      ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
         result = resultSet.getLong(1);
-      } else {
-        result = 0;
       }
     } catch (SQLException e) {
       System.out.println(String.format("[%s] SQL ERROR: %s", Thread.currentThread().getName(), e));
       throw new RuntimeException(e);
-    } finally {
-      closeObjects(connection, preparedStatement, resultSet);
     }
     getRequests.incrementAndGet();
     return result;
@@ -71,45 +63,16 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void addAmount(Integer id, Long value) {
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    try {
-      connection = dataBasePool.getConnection();
-      preparedStatement = connection.prepareStatement(ADD_AMOUNT_REQUEST);
+    try (Connection connection = dataBasePool.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(ADD_AMOUNT_REQUEST)) {
       preparedStatement.setInt(1, id);
       preparedStatement.setLong(2, value);
-      resultSet = preparedStatement.executeQuery();
+      preparedStatement.executeQuery();
     } catch (SQLException e) {
       System.out.println(String.format("[%s] SQL ERROR: %s", Thread.currentThread().getName(), e));
       throw new RuntimeException(e);
-    } finally {
-      closeObjects(connection, preparedStatement, resultSet);
     }
     addRequests.incrementAndGet();
   }
 
-  private void closeObjects(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) {
-    if (resultSet != null) {
-      try {
-        resultSet.close();
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
-    if (preparedStatement != null) {
-      try {
-        preparedStatement.close();
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
-    if (connection != null) {
-      try {
-        dataBasePool.putConnection(connection);
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
-  }
 }

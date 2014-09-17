@@ -11,5 +11,4 @@ import java.sql.SQLException;
  */
 public interface DataBasePool {
   Connection getConnection() throws SQLException;
-  void putConnection(Connection connection) throws SQLException;
 }

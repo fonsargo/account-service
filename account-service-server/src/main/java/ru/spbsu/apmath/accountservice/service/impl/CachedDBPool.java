@@ -32,8 +32,4 @@ public class CachedDBPool implements DataBasePool {
     return source.getConnection();
   }
 
-  @Override
-  public void putConnection(Connection connection) throws SQLException {
-    connection.close();
-  }
 }

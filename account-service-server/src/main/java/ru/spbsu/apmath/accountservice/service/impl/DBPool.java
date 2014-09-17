@@ -29,8 +29,4 @@ public class DBPool implements DataBasePool {
     return DriverManager.getConnection(url, user, password);
   }
 
-  @Override
-  public void putConnection(Connection connection) throws SQLException {
-    connection.close();
-  }
 }

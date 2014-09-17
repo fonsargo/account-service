@@ -63,7 +63,7 @@ public class App {
       String message = "Not init yet";
       while (server.isAlive()) {
         long tmp = System.currentTimeMillis();
-        if (tmp - now > 1000) {
+        if (tmp - now > 10000) {
           message = getStats(accountService);
           System.out.println(message);
           now = tmp;
@@ -105,7 +105,7 @@ public class App {
     getRequests = tmpGet;
     addRequests = tmpAdd;
     message = String.format(
-            "Count of requests per second - addAmount: %s (of total %s), getAmount: %s (of total %s)\n",
+            "Requests per 10 sec: addAmount:%s (total:%s), getAmount:%s (total:%s)\n",
             speedAdd, tmpAdd, speedGet, tmpGet);
     return message;
   }
